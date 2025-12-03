@@ -315,6 +315,88 @@
       color: #22543d;
     }
 
+    /* แดชบอร์ด */
+    .dashboard-card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 10px 12px;
+      border: 1px solid #dde1ff;
+      margin-top: 6px;
+    }
+
+    .dashboard-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 0.8rem;
+      margin-top: 4px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-color {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+    }
+
+    .legend-green { background: #48bb78; }
+    .legend-yellow { background: #ecc94b; }
+    .legend-red { background: #f56565; }
+
+    .dash-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-size: 0.82rem;
+    }
+
+    .dash-dim-name {
+      flex: 0 0 120px;
+      text-align: left;
+    }
+
+    .dash-bar-wrap {
+      flex: 1 1 auto;
+      background: #edf2f7;
+      border-radius: 999px;
+      overflow: hidden;
+      height: 14px;
+    }
+
+    .dash-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+    }
+
+    .dash-bar-green { background: #48bb78; }
+    .dash-bar-yellow { background: #ecc94b; }
+    .dash-bar-red { background: #f56565; }
+
+    .dash-value {
+      flex: 0 0 70px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .dash-status-pill {
+      flex: 0 0 90px;
+      text-align: center;
+      font-size: 0.78rem;
+      padding: 2px 6px;
+      border-radius: 999px;
+      color: #fff;
+    }
+
+    .dash-status-green { background: #48bb78; }
+    .dash-status-yellow { background: #ecc94b; color: #111; }
+    .dash-status-red { background: #f56565; }
+
     @media (max-width: 768px) {
       .app-wrapper {
         padding: 16px 14px 24px;
@@ -324,6 +406,12 @@
       }
       button {
         margin-top: 4px;
+      }
+      .dash-row {
+        flex-wrap: wrap;
+      }
+      .dash-dim-name {
+        flex: 1 1 100%;
       }
     }
   </style>
@@ -598,6 +686,17 @@
         </div>
       </div>
     </div>
+
+    <!-- 8. แดชบอร์ดสรุปผล -->
+    <div class="card">
+      <h2>8. แดชบอร์ดสรุปผล (Dashboard Summary)</h2>
+      <p class="small">
+        แสดงผลการประเมินรายด้านในรูปแบบกราฟ/ตารางสรุป<br>
+        🟢 สีเขียว = บรรลุ | 🟡 สีเหลือง = ควรพัฒนา | 🔴 สีแดง = ต้องรีบปรับปรุง<br>
+        (อ้างอิงจากค่าเฉลี่ยเทียบกับเกณฑ์ที่กำหนดในช่อง “เกณฑ์ความพึงพอใจผ่าน (ค่าเฉลี่ย)”)
+      </p>
+      <div id="dashboardContainer" class="mt-2"></div>
+    </div>
   </div>
 
   <script>
@@ -693,7 +792,7 @@
       return "น้อยที่สุด";
     }
 
-    // ใช้คำนวณสถิติรายด้านสำหรับ export .doc ด้วย
+    // สำหรับคำนวณ dimension ใช้กับทั้ง dashboard และ doc
     function computeDimensionStats() {
       const itemInputs = document.querySelectorAll("input[data-role='itemText']");
       const dimInputs = document.querySelectorAll("input[data-role='itemDim']");
@@ -730,6 +829,18 @@
         overallMean: countMeans ? sumAllMeans / countMeans : null,
         countMeans
       };
+    }
+
+    // จัดกลุ่มสีแดชบอร์ด
+    function classifyStatus(value, thresholdMean) {
+      // กำหนดคร่าว ๆ: >= เกณฑ์ = เขียว, >= เกณฑ์-0.5 = เหลือง, น้อยกว่านั้น = แดง
+      if (value >= thresholdMean) {
+        return { color: "green", text: "บรรลุ" };
+      } else if (value >= thresholdMean - 0.5) {
+        return { color: "yellow", text: "ควรพัฒนา" };
+      } else {
+        return { color: "red", text: "ต้องรีบปรับปรุง" };
+      }
     }
 
     // ---------- คำนวณและแปลผล ----------
@@ -790,11 +901,13 @@
       const statsContainer = document.getElementById("statsContainer");
       const summaryTextEl = document.getElementById("summaryText");
       const policyTextEl = document.getElementById("policyText");
+      const dashboardContainer = document.getElementById("dashboardContainer");
 
       if (items.length === 0) {
         statsContainer.innerHTML = `<p class="small">ยังไม่ได้กรอกค่าเฉลี่ยของข้อประเมินใด ๆ กรุณากรอกอย่างน้อย 1 ข้อ</p>`;
         summaryTextEl.textContent = "ยังไม่สามารถสรุปผลได้เนื่องจากไม่มีข้อมูลค่าเฉลี่ยของข้อประเมิน";
         policyTextEl.textContent = "โปรดกรอกข้อมูลการประเมินให้ครบถ้วนก่อน เพื่อให้ระบบสามารถสรุปข้อเสนอแนะเชิงนโยบายได้อย่างเหมาะสม";
+        dashboardContainer.innerHTML = `<p class="small">ไม่มีข้อมูลสำหรับสร้างแดชบอร์ด กรุณากรอกค่าเฉลี่ยข้อประเมินก่อน</p>`;
         hasResult = false;
         return;
       }
@@ -999,6 +1112,100 @@
 
       policyTextEl.textContent = policyText;
 
+      // ---------- แดชบอร์ดสรุปผล ----------
+      const dimStats = computeDimensionStats();
+      const dims = dimStats.dims || [];
+
+      if (!dims.length) {
+        dashboardContainer.innerHTML = `<p class="small">ไม่มีข้อมูลรายด้านสำหรับสร้างแดชบอร์ด</p>`;
+      } else {
+        let dashHtml = `
+          <div class="dashboard-card">
+            <div class="small"><b>ภาพรวมสถานะตามด้าน (Dimension)</b></div>
+            <div class="dashboard-legend mt-1">
+              <div class="legend-item"><span class="legend-color legend-green"></span> บรรลุ</div>
+              <div class="legend-item"><span class="legend-color legend-yellow"></span> ควรพัฒนา</div>
+              <div class="legend-item"><span class="legend-color legend-red"></span> ต้องรีบปรับปรุง</div>
+            </div>
+            <div class="mt-2">
+        `;
+
+        dims.forEach(d => {
+          const status = classifyStatus(d.mean, thresholdMean);
+          const barWidth = Math.max(0, Math.min(100, (d.mean / 5) * 100));
+          const barColorClass =
+            status.color === "green"
+              ? "dash-bar-green"
+              : status.color === "yellow"
+              ? "dash-bar-yellow"
+              : "dash-bar-red";
+          const pillClass =
+            status.color === "green"
+              ? "dash-status-green"
+              : status.color === "yellow"
+              ? "dash-status-yellow"
+              : "dash-status-red";
+
+          dashHtml += `
+            <div class="dash-row">
+              <div class="dash-dim-name">${d.name}</div>
+              <div class="dash-bar-wrap">
+                <div class="dash-bar-fill ${barColorClass}" style="width:${barWidth.toFixed(0)}%;"></div>
+              </div>
+              <div class="dash-value">${d.mean.toFixed(2)}</div>
+              <div class="dash-status-pill ${pillClass}">${status.text}</div>
+            </div>
+          `;
+        });
+
+        dashHtml += `
+            </div>
+          </div>
+        `;
+
+        // ตารางสรุปรายด้านในแดชบอร์ด
+        dashHtml += `
+          <div class="dashboard-card mt-2">
+            <div class="small"><b>ตารางสรุปสถานะรายด้าน</b></div>
+            <div class="scroll-x mt-1">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ด้าน</th>
+                    <th>ค่าเฉลี่ย</th>
+                    <th>ระดับ (Likert)</th>
+                    <th>สถานะ</th>
+                  </tr>
+                </thead>
+                <tbody>
+        `;
+        dims.forEach(d => {
+          const status = classifyStatus(d.mean, thresholdMean);
+          const statusText = status.text;
+          let statusColor = "#48bb78";
+          if (status.color === "yellow") statusColor = "#ecc94b";
+          if (status.color === "red") statusColor = "#f56565";
+
+          dashHtml += `
+            <tr>
+              <td>${d.name}</td>
+              <td>${d.mean.toFixed(2)}</td>
+              <td>${d.level}</td>
+              <td style="font-weight:600; color:${statusColor};">${statusText}</td>
+            </tr>
+          `;
+        });
+
+        dashHtml += `
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+
+        dashboardContainer.innerHTML = dashHtml;
+      }
+
       hasResult = true;
     }
 
@@ -1197,6 +1404,7 @@
         summaryText: document.getElementById("summaryText").innerText,
         policyText: document.getElementById("policyText").innerText,
         statsHtml: document.getElementById("statsContainer").innerHTML,
+        dashboardHtml: document.getElementById("dashboardContainer").innerHTML,
         hasResult: hasResult
       };
 
@@ -1245,6 +1453,9 @@
 
         if (data.statsHtml) {
           document.getElementById("statsContainer").innerHTML = data.statsHtml;
+        }
+        if (data.dashboardHtml) {
+          document.getElementById("dashboardContainer").innerHTML = data.dashboardHtml;
         }
         if (data.summaryText) {
           document.getElementById("summaryText").innerText = data.summaryText;
