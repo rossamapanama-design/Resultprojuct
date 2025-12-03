@@ -13,28 +13,33 @@
     body {
       margin: 0;
       padding: 0;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: flex-start;
       padding: 20px;
       color: #222;
+
+      /* พื้นหลังรูปโรงเรียน */
+      background-image: url("school-bg.jpg"); /* เปลี่ยนชื่อไฟล์ตามรูปโรงเรียนของครู */
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
     }
 
     .app-wrapper {
       width: 100%;
       max-width: 1100px;
-      background: #ffffff;
+      background: rgba(255, 255, 255, 0.92);
       border-radius: 16px;
       padding: 24px 24px 40px;
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(4px);
     }
 
     h1 {
       margin: 0 0 10px;
       font-size: 1.7rem;
-      text-align: center;
       color: #333;
     }
 
@@ -75,20 +80,23 @@
 
     input[type="number"],
     input[type="text"],
-    select,
-    textarea {
+    input[type="password"],
+    textarea,
+    select {
       width: 100%;
       padding: 6px 8px;
       border-radius: 8px;
       border: 1px solid #d0d4f5;
       font-size: 0.9rem;
       outline: none;
+      background: #ffffff;
     }
 
     input[type="number"]:focus,
     input[type="text"]:focus,
-    select:focus,
-    textarea:focus {
+    input[type="password"]:focus,
+    textarea:focus,
+    select:focus {
       border-color: #667eea;
       box-shadow: 0 0 0 1px rgba(102, 126, 234, 0.3);
     }
@@ -101,14 +109,15 @@
     button {
       border: none;
       border-radius: 999px;
-      padding: 8px 18px;
-      font-size: 0.95rem;
+      padding: 8px 14px;
+      font-size: 0.9rem;
       font-weight: 600;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
       transition: transform 0.05s ease, box-shadow 0.1s ease, background 0.2s ease;
+      white-space: nowrap;
     }
 
     button.primary {
@@ -121,6 +130,12 @@
       background: #ffffff;
       color: #444;
       border: 1px solid #d0d4f5;
+    }
+
+    button.soft {
+      background: #fdfdfd;
+      border: 1px solid #e0e2ff;
+      color: #333;
     }
 
     button:hover {
@@ -155,6 +170,11 @@
     .badge.yellow {
       background: #fff8e1;
       color: #b7791f;
+    }
+
+    .badge.blue {
+      background: #e3f0ff;
+      color: #2b6cb0;
     }
 
     table {
@@ -249,6 +269,12 @@
       overflow-x: auto;
     }
 
+    #loginError {
+      color: #c53030;
+      margin-top: 6px;
+      min-height: 18px;
+    }
+
     @media (max-width: 768px) {
       .app-wrapper {
         padding: 16px 14px 24px;
@@ -256,15 +282,98 @@
       h1 {
         font-size: 1.3rem;
       }
+      button {
+        margin-top: 4px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="app-wrapper">
-    <h1>ระบบแปลผลการดำเนินกิจกรรมออนไลน์</h1>
+  <!-- หน้าเข้าสู่ระบบ -->
+  <div id="loginWrapper" class="app-wrapper">
+    <h1 style="text-align:center;">เข้าสู่ระบบ ระบบแปลผลกิจกรรมออนไลน์</h1>
     <p class="subtitle">
-      Fully Automatic Activity Evaluation System (Likert 5 ระดับ) – คำนวณค่าเฉลี่ย แปลผล และสรุปผลกิจกรรมให้อัตโนมัติ 100%
+      กรุณากรอกชื่อ นามสกุล เลือกบทบาท และรหัสผ่านตัวเลข 6 หลัก เพื่อเข้าใช้งานระบบ
     </p>
+    <div class="card" style="max-width: 520px; margin: 0 auto;">
+      <h2>เข้าสู่ระบบผู้ใช้งาน</h2>
+      <div class="flex">
+        <div style="flex:1 1 200px;">
+          <label>ชื่อ</label>
+          <input id="loginFirstName" type="text" placeholder="เช่น จิ๊บ" />
+        </div>
+        <div style="flex:1 1 200px;">
+          <label>นามสกุล</label>
+          <input id="loginLastName" type="text" placeholder="เช่น ใจดี" />
+        </div>
+      </div>
+      <div class="mt-2">
+        <label>บทบาท (Role)</label>
+        <select id="loginRole">
+          <option value="teacher">ครู/ผู้รับผิดชอบกิจกรรม</option>
+          <option value="deputy">รองผู้อำนวยการ</option>
+          <option value="director">ผู้อำนวยการ</option>
+        </select>
+      </div>
+      <div class="mt-2">
+        <label>รหัสผ่าน (ตัวเลข 6 หลัก)</label>
+        <input
+          id="loginPassword"
+          type="password"
+          maxlength="6"
+          inputmode="numeric"
+          placeholder="เช่น 123456"
+        />
+      </div>
+      <div id="loginError" class="small"></div>
+      <div class="mt-2" style="text-align:right;">
+        <button id="btnLogin" class="primary">
+          🔐 เข้าสู่ระบบ
+        </button>
+      </div>
+      <p class="small mt-2">
+        * ยังไม่เชื่อมต่อฐานข้อมูลจริง รหัสผ่านใช้เพื่อควบคุมการเข้าหน้าใช้งานในเครื่องนี้เท่านั้น
+      </p>
+    </div>
+  </div>
+
+  <!-- หน้าใช้งานหลัก -->
+  <div id="mainWrapper" class="app-wrapper" style="display:none;">
+    <!-- ข้อมูลสถานศึกษา -->
+    <div class="card">
+      <h2>ข้อมูลสถานศึกษา</h2>
+      <div class="flex">
+        <div style="flex: 1 1 260px;">
+          <label>ชื่อสถานศึกษา</label>
+          <input id="schoolName" type="text" placeholder="เช่น โรงเรียนเตรียมอุดมศึกษาพัฒนาการ ยานนาเวศ" />
+        </div>
+        <div style="flex: 1 1 260px;">
+          <label>สังกัด</label>
+          <input id="affiliation" type="text" placeholder="เช่น สำนักงานเขตพื้นที่การศึกษามัธยมศึกษากรุงเทพมหานคร เขต 2" />
+        </div>
+      </div>
+    </div>
+
+    <!-- ส่วนหัว + ผู้ใช้ปัจจุบัน -->
+    <div class="flex" style="align-items:center; justify-content: space-between; margin-bottom: 8px;">
+      <div>
+        <h1>ระบบแปลผลการดำเนินกิจกรรมออนไลน์</h1>
+        <p class="subtitle" style="text-align:left; margin-top:4px;">
+          Fully Automatic Activity Evaluation System (Likert 5 ระดับ) – คำนวณค่าเฉลี่ย แปลผล และสรุปผลกิจกรรมให้อัตโนมัติ 100%
+        </p>
+      </div>
+      <div style="text-align:right;">
+        <div class="small">
+          ผู้ใช้ที่เข้าสู่ระบบ: <span id="currentUserName">-</span>
+        </div>
+        <div class="small mt-1">
+          บทบาท: <span id="currentUserRole">-</span>
+        </div>
+        <button id="btnLogout" class="soft mt-1">
+          🚪 ออกจากระบบ
+        </button>
+      </div>
+    </div>
 
     <!-- 1. ตั้งค่ากิจกรรม -->
     <div class="card">
@@ -283,11 +392,19 @@
           <input id="semester" type="text" placeholder="เช่น 1/2568 หรือ ภาคเรียนที่ 1" />
         </div>
         <div style="flex: 1 1 180px;">
-          <label>ชื่อผู้รับผิดชอบกิจกรรม</label>
-          <input id="responsiblePerson" type="text" placeholder="เช่น ครูผู้รับผิดชอบโครงการ" />
+          <label>กลุ่มบริหาร</label>
+          <input id="managementGroup" type="text" placeholder="เช่น กลุ่มบริหารวิชาการ" />
         </div>
       </div>
       <div class="flex mt-2">
+        <div style="flex: 1 1 220px;">
+          <label>ชื่อผู้รับผิดชอบกิจกรรม</label>
+          <input id="responsiblePerson" type="text" placeholder="เช่น ครูผู้รับผิดชอบโครงการ" />
+        </div>
+        <div style="flex: 1 1 160px;">
+          <label>จำนวนผู้เข้าร่วมกิจกรรม (คน)</label>
+          <input id="numAttendees" type="number" min="0" placeholder="เช่น 120" />
+        </div>
         <div style="flex: 1 1 160px;">
           <label>จำนวนผู้ตอบแบบประเมิน (คน)</label>
           <input id="numParticipants" type="number" min="1" value="20" />
@@ -351,7 +468,7 @@
       </div>
     </div>
 
-    <!-- ปุ่มประมวลผล + ดาวน์โหลด -->
+    <!-- 4. ปุ่มประมวลผล + ดาวน์โหลด -->
     <div class="card">
       <div class="flex" style="align-items: center; justify-content: space-between; gap: 10px;">
         <div>
@@ -374,16 +491,49 @@
       </div>
     </div>
 
-    <!-- 5. ผลลัพธ์ -->
+    <!-- 5. การส่งรายงาน & ติดตามสถานะ -->
     <div class="card">
-      <h2>5. ผลการประเมินเชิงสถิติ</h2>
+      <h2>5. การส่งรายงานและติดตามสถานะ</h2>
+      <p class="small">
+        ปุ่มด้านล่างนี้เป็นระบบจัดการฉบับร่าง–ส่งรายงาน–แก้ไข และกดรับทราบ (สำหรับผู้บริหาร) โดยข้อมูลจะถูกเก็บในเบราว์เซอร์เครื่องที่ใช้งาน
+      </p>
+      <div class="flex mt-1" style="align-items: center; gap: 8px;">
+        <button id="btnSaveDraft" class="soft">
+          💾 บันทึกข้อมูล (ฉบับร่าง)
+        </button>
+        <button id="btnSubmitReport" class="secondary">
+          📤 ส่งรายงานให้ผู้บริหาร
+        </button>
+        <button id="btnEditUnlock" class="secondary">
+          ✏️ แก้ไขข้อมูล
+        </button>
+        <button id="btnAcknowledgeDeputy" class="soft">
+          ✅ รองผู้อำนวยการ: กดรับทราบรายงาน
+        </button>
+        <button id="btnAcknowledgeDirector" class="soft">
+          ✅ ผู้อำนวยการ: กดรับทราบรายงาน
+        </button>
+      </div>
+
+      <div id="statusArea" class="result-box mt-2">
+        <div class="result-title">สถานะการส่งรายงาน</div>
+        <div id="statusText" class="result-text small">
+          ยังไม่เคยบันทึกข้อมูลหรือส่งรายงาน
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. ผลลัพธ์เชิงสถิติ -->
+    <div class="card">
+      <h2>6. ผลการประเมินเชิงสถิติ</h2>
       <div id="statsContainer" class="mt-2">
         <!-- จะสร้างด้วย JS -->
       </div>
     </div>
 
+    <!-- 7. สรุปผลข้อความ -->
     <div class="card">
-      <h2>6. สรุปผลในภาพรวม (ข้อความพร้อมใช้รายงาน/โครงการ)</h2>
+      <h2>7. สรุปผลในภาพรวม (ข้อความพร้อมใช้รายงาน/โครงการ)</h2>
       <div id="summaryContainer" class="result-box">
         <div class="result-title">สรุปผลภาพรวมของกิจกรรม</div>
         <div id="summaryText" class="result-text">
@@ -404,7 +554,11 @@
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
   <script>
-    // ---------- CONFIG เริ่มต้น: รายการข้อประเมินตัวอย่าง ----------
+    // ---------- CONFIG ----------
+    const STORAGE_KEY = "activityEvalDraftV1";
+    const STATUS_KEY = "activityEvalStatusV1";
+    const USER_KEY   = "activityEvalCurrentUserV1";
+
     const defaultItems = [
       { text: "กิจกรรมมีเนื้อหาสอดคล้องกับวัตถุประสงค์ที่กำหนด", dimension: "เนื้อหา" },
       { text: "เนื้อหาที่จัดกิจกรรมมีความทันสมัยและเชื่อมโยงกับชีวิตจริง", dimension: "เนื้อหา" },
@@ -419,8 +573,28 @@
     ];
 
     const itemsTableBody = document.querySelector("#itemsTable tbody");
-    let hasResult = false; // ใช้เช็คว่าประมวลผลแล้วหรือยัง
+    let hasResult = false;
 
+    // ---------- USER ----------
+    function getCurrentUser() {
+      const raw = localStorage.getItem(USER_KEY);
+      if (!raw) return null;
+      try { return JSON.parse(raw); } catch { return null; }
+    }
+    function setCurrentUser(firstName, lastName, role) {
+      const user = { firstName, lastName, role };
+      localStorage.setItem(USER_KEY, JSON.stringify(user));
+    }
+    function clearCurrentUser() {
+      localStorage.removeItem(USER_KEY);
+    }
+    function roleLabel(role) {
+      if (role === "deputy") return "รองผู้อำนวยการ";
+      if (role === "director") return "ผู้อำนวยการ";
+      return "ครู/ผู้รับผิดชอบกิจกรรม";
+    }
+
+    // ---------- สร้างตารางข้อประเมิน ----------
     function renderItemsTable() {
       itemsTableBody.innerHTML = "";
       defaultItems.forEach((item, index) => {
@@ -472,14 +646,21 @@
       return "น้อยที่สุด";
     }
 
+    // ---------- คำนวณและแปลผล ----------
     function calculateAndRender() {
+      const schoolName = document.getElementById("schoolName").value.trim();
+      const affiliation = document.getElementById("affiliation").value.trim();
+
       const activityName = document.getElementById("activityName").value.trim() || "กิจกรรมครั้งนี้";
       const academicYear = document.getElementById("academicYear").value.trim();
       const semester = document.getElementById("semester").value.trim();
+      const managementGroup = document.getElementById("managementGroup").value.trim();
       const responsiblePerson = document.getElementById("responsiblePerson").value.trim();
+
+      const numAttendees = parseFloat(document.getElementById("numAttendees").value) || 0;
+      const numParticipants = parseFloat(document.getElementById("numParticipants").value) || 0;
       const budgetValue = document.getElementById("budget").value.trim();
 
-      const numParticipants = parseFloat(document.getElementById("numParticipants").value) || 0;
       const thresholdMean = parseFloat(document.getElementById("thresholdMean").value) || 4.0;
       const thresholdPercent = parseFloat(document.getElementById("thresholdPercent").value) || 80;
 
@@ -493,7 +674,6 @@
       const items = [];
       let sumAllMeans = 0;
       let countMeans = 0;
-
       const dimMap = {};
 
       for (let i = 0; i < itemInputs.length; i++) {
@@ -539,6 +719,7 @@
       const overallPassKPI =
         overallMean >= thresholdMean && estimatedPercentPass >= thresholdPercent;
 
+      // การ์ด KPI
       let dimHtml = `
         <div class="kpi-row">
           <div class="kpi-card">
@@ -573,6 +754,7 @@
         </div>
       `;
 
+      // ตารางค่าเฉลี่ยตามด้าน
       let dimTable = `
         <div class="mt-3">
           <div class="small"><b>สรุปค่าเฉลี่ยตามด้าน (Dimension)</b></div>
@@ -606,6 +788,7 @@
         </div>
       `;
 
+      // ตารางค่าเฉลี่ยรายข้อ
       let itemTable = `
         <div class="mt-3">
           <div class="small"><b>ค่าเฉลี่ยรายข้อประเมิน</b></div>
@@ -644,22 +827,42 @@
 
       statsContainer.innerHTML = dimHtml + dimTable + itemTable;
 
+      // ---------- ข้อความสรุป ----------
       const nameForText = activityName || "กิจกรรมดังกล่าว";
-
       let summaryText = "";
+
+      if (schoolName || affiliation) {
+        summaryText += `การประเมินผลการดำเนินกิจกรรมของ`;
+        if (schoolName) summaryText += `${schoolName} `;
+        if (affiliation) summaryText += `สังกัด ${affiliation} `;
+        summaryText += `\n\n`;
+      }
+
       summaryText += `${nameForText}`;
       if (semester || academicYear) {
         summaryText += ` จัดในภาคเรียน/ปีการศึกษา `;
         if (semester) summaryText += `${semester} `;
         if (academicYear) summaryText += `ปีการศึกษา ${academicYear} `;
       }
+      if (managementGroup) {
+        summaryText += `ภายใต้การกำกับดูแลของ${managementGroup} `;
+      }
       if (responsiblePerson) {
         summaryText += `โดยมีผู้รับผิดชอบกิจกรรมคือ ${responsiblePerson} `;
       }
-      summaryText += `มีผู้ตอบแบบประเมินจำนวนประมาณ ${numParticipants || "…"} คน `;
+
+      if (numAttendees > 0 && numParticipants > 0) {
+        summaryText += `มีผู้เข้าร่วมกิจกรรมทั้งหมด ${numAttendees} คน และมีผู้ตอบแบบประเมินจำนวนประมาณ ${numParticipants} คน `;
+      } else if (numAttendees > 0) {
+        summaryText += `มีผู้เข้าร่วมกิจกรรมทั้งหมดประมาณ ${numAttendees} คน `;
+      } else if (numParticipants > 0) {
+        summaryText += `มีผู้ตอบแบบประเมินจำนวนประมาณ ${numParticipants} คน `;
+      }
+
       if (budgetValue) {
         summaryText += `ใช้งบประมาณดำเนินกิจกรรมทั้งสิ้นประมาณ ${budgetValue} บาท `;
       }
+
       summaryText += `ผลการประเมินภาพรวมมีค่าเฉลี่ยเท่ากับ ${overallMean.toFixed(2)} อยู่ในระดับ“${overallLevel}” `;
       summaryText += `โดยจากการตีความตามเกณฑ์ที่กำหนด (${thresholdMean.toFixed(2)} ขึ้นไปถือว่า “ผ่านเกณฑ์”) `;
       summaryText += `พบว่ากิจกรรม ${
@@ -679,10 +882,11 @@
       summaryText += `ซึ่งเทียบกับเกณฑ์ตัวชี้วัดที่กำหนดไว้ไม่ต่ำกว่า ${thresholdPercent.toFixed(0)}% แล้วถือว่า `;
       summaryText += overallPassKPI
         ? "กิจกรรมครั้งนี้บรรลุเป้าหมายตามตัวชี้วัดที่กำหนด"
-        : "กิจกรรมครั้งนี้ยังไม่บรรลุเป้าหมายตามตัวชี้วัดที่กำหนดอย่างเต็มที่ และควรมีการออกแบบกิจกรรม/ปรับกลยุทธ์เพิ่มเติมในครั้งถัดไป";
+        : "กิจกรรมครั้งนี้ยังไม่บรรลุตามตัวชี้วัดที่กำหนดอย่างเต็มที่ และควรมีการออกแบบกิจกรรม/ปรับกลยุทธ์เพิ่มเติมในครั้งถัดไป";
 
       summaryTextEl.textContent = summaryText;
 
+      // ---------- ข้อเสนอแนะเชิงนโยบาย ----------
       let policyText = "";
 
       if (strengths) {
@@ -712,11 +916,246 @@
       hasResult = true;
     }
 
+    // ---------- สถานะ + localStorage ----------
+    function getStatusObj() {
+      const raw = localStorage.getItem(STATUS_KEY);
+      if (!raw) return { current: "none", isLocked: false, history: [] };
+      try {
+        return JSON.parse(raw);
+      } catch {
+        return { current: "none", isLocked: false, history: [] };
+      }
+    }
+
+    function saveStatusObj(obj) {
+      localStorage.setItem(STATUS_KEY, JSON.stringify(obj));
+    }
+
+    function statusLabel(code) {
+      switch (code) {
+        case "draft":
+          return "ฉบับร่าง (ยังไม่ส่งผู้บริหาร)";
+        case "submitted":
+          return "ส่งให้ผู้บริหารแล้ว (รอการรับทราบ)";
+        case "editing":
+          return "อยู่ระหว่างแก้ไขข้อมูล";
+        case "ack_deputy":
+          return "รองผู้อำนวยการรับทราบแล้ว";
+        case "ack_director":
+          return "ผู้อำนวยการรับทราบแล้ว";
+        default:
+          return "ยังไม่เคยบันทึกข้อมูลหรือส่งรายงาน";
+      }
+    }
+
+    function renderStatus() {
+      const statusArea = document.getElementById("statusText");
+      const statusObj = getStatusObj();
+
+      if (!statusObj.history || statusObj.history.length === 0 || statusObj.current === "none") {
+        statusArea.textContent = "ยังไม่เคยบันทึกข้อมูลหรือส่งรายงาน";
+        return;
+      }
+
+      let text = `สถานะปัจจุบัน: ${statusLabel(statusObj.current)}\n\nไทม์ไลน์การดำเนินการ:\n`;
+      statusObj.history.forEach((h) => {
+        text += `• [${h.time}] ${statusLabel(h.status)}${h.note ? " – " + h.note : ""}\n`;
+      });
+
+      statusArea.textContent = text;
+    }
+
+    function setFormDisabled(disabled) {
+      const selectors = "input[type='text'], input[type='number'], textarea, #btnCalculate";
+      document.querySelectorAll(selectors).forEach((el) => {
+        el.disabled = disabled;
+      });
+    }
+
+    function applyRolePermissions() {
+      const user = getCurrentUser() || {};
+      const role = user.role || "teacher";
+      const st = getStatusObj();
+
+      const btnSaveDraft = document.getElementById("btnSaveDraft");
+      const btnSubmitReport = document.getElementById("btnSubmitReport");
+      const btnEditUnlock = document.getElementById("btnEditUnlock");
+      const btnAcknowledgeDeputy = document.getElementById("btnAcknowledgeDeputy");
+      const btnAcknowledgeDirector = document.getElementById("btnAcknowledgeDirector");
+
+      // ควบคุมการแก้ไขฟอร์ม
+      const shouldLockInputs = st.isLocked || role !== "teacher";
+      setFormDisabled(shouldLockInputs);
+
+      // ซ่อน/แสดงปุ่มตามบทบาท
+      if (role === "teacher") {
+        btnSaveDraft.style.display = "inline-flex";
+        btnSubmitReport.style.display = "inline-flex";
+        btnEditUnlock.style.display = "inline-flex";
+        btnAcknowledgeDeputy.style.display = "none";
+        btnAcknowledgeDirector.style.display = "none";
+      } else if (role === "deputy") {
+        btnSaveDraft.style.display = "none";
+        btnSubmitReport.style.display = "none";
+        btnEditUnlock.style.display = "none";
+        btnAcknowledgeDeputy.style.display = "inline-flex";
+        btnAcknowledgeDirector.style.display = "none";
+      } else if (role === "director") {
+        btnSaveDraft.style.display = "none";
+        btnSubmitReport.style.display = "none";
+        btnEditUnlock.style.display = "none";
+        btnAcknowledgeDeputy.style.display = "none";
+        btnAcknowledgeDirector.style.display = "inline-flex";
+      }
+    }
+
+    function updateStatus(newStatus, note, lockForm) {
+      const statusObj = getStatusObj();
+      const time = new Date().toLocaleString("th-TH");
+      if (!statusObj.history) statusObj.history = [];
+      statusObj.history.push({ status: newStatus, time, note: note || "" });
+      statusObj.current = newStatus;
+      statusObj.isLocked = !!lockForm;
+      saveStatusObj(statusObj);
+      renderStatus();
+      applyRolePermissions();
+    }
+
+    function collectItemsForSave() {
+      const itemInputs = document.querySelectorAll("input[data-role='itemText']");
+      const dimInputs = document.querySelectorAll("input[data-role='itemDim']");
+      const meanInputs = document.querySelectorAll("input[data-role='itemMean']");
+      const items = [];
+      for (let i = 0; i < itemInputs.length; i++) {
+        items.push({
+          text: itemInputs[i].value,
+          dimension: dimInputs[i].value,
+          mean: meanInputs[i].value
+        });
+      }
+      return items;
+    }
+
+    function saveDraft() {
+      const data = {
+        schoolName: document.getElementById("schoolName").value,
+        affiliation: document.getElementById("affiliation").value,
+        activityName: document.getElementById("activityName").value,
+        academicYear: document.getElementById("academicYear").value,
+        semester: document.getElementById("semester").value,
+        managementGroup: document.getElementById("managementGroup").value,
+        responsiblePerson: document.getElementById("responsiblePerson").value,
+        numAttendees: document.getElementById("numAttendees").value,
+        numParticipants: document.getElementById("numParticipants").value,
+        budget: document.getElementById("budget").value,
+        thresholdMean: document.getElementById("thresholdMean").value,
+        thresholdPercent: document.getElementById("thresholdPercent").value,
+        strengths: document.getElementById("strengths").value,
+        improvements: document.getElementById("improvements").value,
+        items: collectItemsForSave(),
+        summaryText: document.getElementById("summaryText").innerText,
+        policyText: document.getElementById("policyText").innerText,
+        statsHtml: document.getElementById("statsContainer").innerHTML,
+        hasResult: hasResult
+      };
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      updateStatus("draft", "บันทึกร่างข้อมูลล่าสุด", false);
+      alert("บันทึกข้อมูลฉบับร่างเรียบร้อย (เก็บไว้ในเบราว์เซอร์เครื่องนี้)");
+    }
+
+    function loadDraft() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        renderStatus();
+        applyRolePermissions();
+        return;
+      }
+      try {
+        const data = JSON.parse(raw);
+        document.getElementById("schoolName").value = data.schoolName || "";
+        document.getElementById("affiliation").value = data.affiliation || "";
+        document.getElementById("activityName").value = data.activityName || "";
+        document.getElementById("academicYear").value = data.academicYear || "";
+        document.getElementById("semester").value = data.semester || "";
+        document.getElementById("managementGroup").value = data.managementGroup || "";
+        document.getElementById("responsiblePerson").value = data.responsiblePerson || "";
+        document.getElementById("numAttendees").value = data.numAttendees || "";
+        document.getElementById("numParticipants").value = data.numParticipants || "";
+        document.getElementById("budget").value = data.budget || "";
+        document.getElementById("thresholdMean").value = data.thresholdMean || "4.00";
+        document.getElementById("thresholdPercent").value = data.thresholdPercent || "80";
+        document.getElementById("strengths").value = data.strengths || "";
+        document.getElementById("improvements").value = data.improvements || "";
+
+        if (data.items && data.items.length) {
+          const itemInputs = document.querySelectorAll("input[data-role='itemText']");
+          const dimInputs = document.querySelectorAll("input[data-role='itemDim']");
+          const meanInputs = document.querySelectorAll("input[data-role='itemMean']");
+          for (let i = 0; i < itemInputs.length && i < data.items.length; i++) {
+            const it = data.items[i];
+            itemInputs[i].value = it.text || "";
+            dimInputs[i].value = it.dimension || "";
+            meanInputs[i].value = it.mean || "";
+          }
+        }
+
+        if (data.statsHtml) {
+          document.getElementById("statsContainer").innerHTML = data.statsHtml;
+        }
+        if (data.summaryText) {
+          document.getElementById("summaryText").innerText = data.summaryText;
+        }
+        if (data.policyText) {
+          document.getElementById("policyText").innerText = data.policyText;
+        }
+
+        hasResult = !!data.hasResult;
+      } catch {
+        console.warn("ไม่สามารถอ่านข้อมูลฉบับร่างได้");
+      }
+
+      renderStatus();
+      applyRolePermissions();
+    }
+
+    function submitReport() {
+      if (!hasResult) {
+        alert("กรุณาประมวลผลก่อน (กดปุ่ม \"ประมวลผลอัตโนมัติ\") แล้วจึงส่งรายงานให้ผู้บริหาร");
+        return;
+      }
+      saveDraft();
+      updateStatus("submitted", "ส่งรายงานให้ผู้บริหาร (บันทึกสถานะในระบบติดตาม)", true);
+      alert("บันทึกสถานะว่า \"ส่งรายงานให้ผู้บริหารแล้ว\" เรียบร้อย (ฟอร์มถูกล็อกไว้จนกว่าจะกด \"แก้ไขข้อมูล\")");
+    }
+
+    function editUnlock() {
+      updateStatus("editing", "ปลดล็อกเพื่อแก้ไขข้อมูลรายงาน", false);
+      alert("ปลดล็อกแบบฟอร์มแล้ว สามารถแก้ไขข้อมูลและประมวลผลใหม่ได้");
+    }
+
+    function acknowledgeDeputy() {
+      updateStatus("ack_deputy", "รองผู้อำนวยการกดรับทราบรายงาน", true);
+      alert("บันทึกสถานะแล้ว: รองผู้อำนวยการรับทราบรายงาน");
+    }
+
+    function acknowledgeDirector() {
+      updateStatus("ack_director", "ผู้อำนวยการกดรับทราบรายงาน", true);
+      alert("บันทึกสถานะแล้ว: ผู้อำนวยการรับทราบรายงาน");
+    }
+
+    // ---------- DOC / PDF ----------
     function createDocContent() {
+      const schoolName = document.getElementById("schoolName").value.trim();
+      const affiliation = document.getElementById("affiliation").value.trim();
+
       const activityName = document.getElementById("activityName").value.trim() || "กิจกรรมครั้งนี้";
       const academicYear = document.getElementById("academicYear").value.trim();
       const semester = document.getElementById("semester").value.trim();
+      const managementGroup = document.getElementById("managementGroup").value.trim();
       const responsiblePerson = document.getElementById("responsiblePerson").value.trim();
+      const numAttendees = document.getElementById("numAttendees").value.trim();
+      const numParticipants = document.getElementById("numParticipants").value.trim();
       const budgetValue = document.getElementById("budget").value.trim();
 
       const summaryText = document.getElementById("summaryText").innerText.trim();
@@ -724,7 +1163,15 @@
       const statsText = document.getElementById("statsContainer").innerText.trim();
       const now = new Date().toLocaleString("th-TH");
 
+      const user = getCurrentUser() || {};
+      let userLine = "";
+      if (user.firstName || user.lastName) {
+        userLine = `จัดทำโดย: ${user.firstName || ""} ${user.lastName || ""} (${roleLabel(user.role || "teacher")})\n`;
+      }
+
       let header = `รายงานการประเมินผลการดำเนินกิจกรรมออนไลน์\n`;
+      if (schoolName) header += `สถานศึกษา: ${schoolName}\n`;
+      if (affiliation) header += `สังกัด: ${affiliation}\n`;
       header += `ชื่อกิจกรรม: ${activityName}\n`;
       if (semester || academicYear) {
         header += `ภาคเรียน/ปีการศึกษา: `;
@@ -732,12 +1179,22 @@
         if (academicYear) header += `ปีการศึกษา ${academicYear} `;
         header += `\n`;
       }
+      if (managementGroup) {
+        header += `กลุ่มบริหาร: ${managementGroup}\n`;
+      }
       if (responsiblePerson) {
         header += `ผู้รับผิดชอบกิจกรรม: ${responsiblePerson}\n`;
+      }
+      if (numAttendees) {
+        header += `จำนวนผู้เข้าร่วมกิจกรรม: ${numAttendees} คน\n`;
+      }
+      if (numParticipants) {
+        header += `จำนวนผู้ตอบแบบประเมิน: ${numParticipants} คน\n`;
       }
       if (budgetValue) {
         header += `งบประมาณ: ${budgetValue} บาท\n`;
       }
+      header += userLine;
       header += `จัดทำเมื่อ: ${now}\n\n`;
 
       const fullText =
@@ -801,10 +1258,16 @@ h1 { text-align: center; }
         return;
       }
 
+      const schoolName = document.getElementById("schoolName").value.trim();
+      const affiliation = document.getElementById("affiliation").value.trim();
+
       const activityName = document.getElementById("activityName").value.trim() || "กิจกรรมครั้งนี้";
       const academicYear = document.getElementById("academicYear").value.trim();
       const semester = document.getElementById("semester").value.trim();
+      const managementGroup = document.getElementById("managementGroup").value.trim();
       const responsiblePerson = document.getElementById("responsiblePerson").value.trim();
+      const numAttendees = document.getElementById("numAttendees").value.trim();
+      const numParticipants = document.getElementById("numParticipants").value.trim();
       const budgetValue = document.getElementById("budget").value.trim();
 
       const summaryText = document.getElementById("summaryText").innerText.trim();
@@ -812,7 +1275,15 @@ h1 { text-align: center; }
       const statsText = document.getElementById("statsContainer").innerText.trim();
       const now = new Date().toLocaleString("th-TH");
 
+      const user = getCurrentUser() || {};
+      let userLine = "";
+      if (user.firstName || user.lastName) {
+        userLine = `จัดทำโดย: ${user.firstName || ""} ${user.lastName || ""} (${roleLabel(user.role || "teacher")})\n`;
+      }
+
       let header = `รายงานการประเมินผลการดำเนินกิจกรรมออนไลน์\n`;
+      if (schoolName) header += `สถานศึกษา: ${schoolName}\n`;
+      if (affiliation) header += `สังกัด: ${affiliation}\n`;
       header += `ชื่อกิจกรรม: ${activityName}\n`;
       if (semester || academicYear) {
         header += `ภาคเรียน/ปีการศึกษา: `;
@@ -820,12 +1291,22 @@ h1 { text-align: center; }
         if (academicYear) header += `ปีการศึกษา ${academicYear} `;
         header += `\n`;
       }
+      if (managementGroup) {
+        header += `กลุ่มบริหาร: ${managementGroup}\n`;
+      }
       if (responsiblePerson) {
         header += `ผู้รับผิดชอบกิจกรรม: ${responsiblePerson}\n`;
+      }
+      if (numAttendees) {
+        header += `จำนวนผู้เข้าร่วมกิจกรรม: ${numAttendees} คน\n`;
+      }
+      if (numParticipants) {
+        header += `จำนวนผู้ตอบแบบประเมิน: ${numParticipants} คน\n`;
       }
       if (budgetValue) {
         header += `งบประมาณ: ${budgetValue} บาท\n`;
       }
+      header += userLine;
       header += `จัดทำเมื่อ: ${now}\n\n`;
 
       const fullText =
@@ -847,11 +1328,82 @@ h1 { text-align: center; }
       doc.save("activity-eval-report.pdf");
     }
 
+    // ---------- INIT & LOGIN ----------
     document.addEventListener("DOMContentLoaded", () => {
       renderItemsTable();
+
+      const loginWrapper = document.getElementById("loginWrapper");
+      const mainWrapper = document.getElementById("mainWrapper");
+      const currentUserNameEl = document.getElementById("currentUserName");
+      const currentUserRoleEl = document.getElementById("currentUserRole");
+
+      function showLogin() {
+        loginWrapper.style.display = "block";
+        mainWrapper.style.display = "none";
+      }
+
+      function showMain() {
+        loginWrapper.style.display = "none";
+        mainWrapper.style.display = "block";
+        const user = getCurrentUser();
+        if (user && currentUserNameEl) {
+          currentUserNameEl.textContent = `${user.firstName || ""} ${user.lastName || ""}`.trim() || "-";
+          currentUserRoleEl.textContent = roleLabel(user.role || "teacher");
+        }
+        loadDraft();
+      }
+
+      // ตรวจว่ามี user เดิมไหม
+      const user = getCurrentUser();
+      if (user) {
+        showMain();
+      } else {
+        showLogin();
+      }
+
+      // ปุ่ม Login
+      const loginBtn = document.getElementById("btnLogin");
+      const loginError = document.getElementById("loginError");
+
+      loginBtn.addEventListener("click", () => {
+        const firstName = document.getElementById("loginFirstName").value.trim();
+        const lastName  = document.getElementById("loginLastName").value.trim();
+        const password  = document.getElementById("loginPassword").value.trim();
+        const role      = document.getElementById("loginRole").value;
+
+        if (!firstName || !lastName) {
+          loginError.textContent = "กรุณากรอกชื่อและนามสกุลให้ครบถ้วน";
+          return;
+        }
+
+        if (!/^[0-9]{6}$/.test(password)) {
+          loginError.textContent = "กรุณากรอกรหัสผ่านเป็นตัวเลข 6 หลัก";
+          return;
+        }
+
+        loginError.textContent = "";
+        setCurrentUser(firstName, lastName, role);
+        showMain();
+      });
+
+      // ปุ่ม Logout
+      const logoutBtn = document.getElementById("btnLogout");
+      logoutBtn.addEventListener("click", () => {
+        clearCurrentUser();
+        alert("ออกจากระบบเรียบร้อย");
+        showLogin();
+      });
+
+      // ปุ่มหลักในหน้า Main
       document.getElementById("btnCalculate").addEventListener("click", calculateAndRender);
       document.getElementById("btnDownloadDoc").addEventListener("click", downloadDoc);
       document.getElementById("btnDownloadPdf").addEventListener("click", downloadPdf);
+
+      document.getElementById("btnSaveDraft").addEventListener("click", saveDraft);
+      document.getElementById("btnSubmitReport").addEventListener("click", submitReport);
+      document.getElementById("btnEditUnlock").addEventListener("click", editUnlock);
+      document.getElementById("btnAcknowledgeDeputy").addEventListener("click", acknowledgeDeputy);
+      document.getElementById("btnAcknowledgeDirector").addEventListener("click", acknowledgeDirector);
     });
   </script>
 </body>
